@@ -1,0 +1,15 @@
+# encrypt.lx
+# Encryption model:
+#   encrypt: wraps password with prefix "###" and suffix "###"
+#            so stored value is "###actualpassword###"
+#   decrypt: strips prefix and suffix using string minus
+# Only uses: string plus, string minus — both confirmed in the guide
+
+define routine encrypt_password with args in take string pwd returns string do
+> create string enc set value "###" plus pwd plus "###";
+> giveback enc;
+
+define routine decrypt_password with args in take string enc returns string do
+> create string stripped set value enc minus "###";
+> set stripped to stripped minus "###";
+> giveback stripped;

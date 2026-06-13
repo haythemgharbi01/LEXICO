@@ -1,0 +1,40 @@
+# storage.lx
+# Handles all file I/O for the vault
+# Each credential stored as 3 consecutive lines: service, username, encrypted_password
+
+define routine save_entry with args in take string svc, string uname, string enc_pwd returns nothing do
+> open "vault.txt" file make do
+>> write svc in file;
+>> write uname in file;
+>> write enc_pwd in file;
+
+define routine read_entry with args in take int slot returns nothing do
+> create int base set value slot times 3;
+> create string svc set value "";
+> create string uname set value "";
+> create string enc_pwd set value "";
+> open "vault.txt" file make do
+>> read line base in file into svc;
+>> create int uline set value base plus 1;
+>> create int pline set value base plus 2;
+>> read line uline in file into uname;
+>> read line pline in file into enc_pwd;
+> print "Service : ", svc;
+> print "Username: ", uname;
+> print "Password: ", enc_pwd;
+
+define routine read_entry_decrypted with args in take int slot returns nothing do
+> create int base set value slot times 3;
+> create string svc set value "";
+> create string uname set value "";
+> create string enc_pwd set value "";
+> open "vault.txt" file make do
+>> read line base in file into svc;
+>> create int uline set value base plus 1;
+>> create int pline set value base plus 2;
+>> read line uline in file into uname;
+>> read line pline in file into enc_pwd;
+> create string plain set value outcome of decrypt_password with args in take enc_pwd;
+> print "Service : ", svc;
+> print "Username: ", uname;
+> print "Password: ", plain;

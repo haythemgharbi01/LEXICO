@@ -1,0 +1,13 @@
+=== Compiling sources ===
+main.cpp exit: 1
+driver.cpp exit: 1
+ast.cpp exit: 1
+symtab.cpp exit: 1
+codegen.cpp exit: 1
+lexico.tab.cpp exit: 1
+lexico.yy.cpp exit: 1
+=== Linking ===
+link exit: 1
+./build.sh: line 55: cp: command not found
+copy to lexicoc.exe exit: 127
+=== Done ===

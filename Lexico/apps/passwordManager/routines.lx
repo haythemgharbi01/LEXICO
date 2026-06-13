@@ -1,0 +1,18 @@
+define routine save_credential with args in take string svc, string uname, string pwd returns nothing do
+> open "vault.txt" file make do
+>> write svc in file;
+>> write uname in file;
+>> write pwd in file;
+
+define routine show_menu returns nothing do
+> print "--- Password Manager ---";
+> print "1. Add credential";
+> print "2. List credentials";
+> print "3. Exit";
+> print "------------------------";
+
+define routine check_master with args in take string input returns bool do
+> create string master set value "lexico123";
+> if input is equal to master then
+>> giveback true;
+> giveback false;

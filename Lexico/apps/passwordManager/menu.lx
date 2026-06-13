@@ -1,0 +1,13 @@
+# menu.lx
+# Displays the main menu
+
+define routine show_menu returns nothing do
+> print "================================";
+> print "    LEXICO Password Manager     ";
+> print "================================";
+> print "1. Add credential";
+> print "2. Show credential (encrypted)";
+> print "3. Show credential (decrypted)";
+> print "4. Delete vault";
+> print "5. Exit";
+> print "================================";

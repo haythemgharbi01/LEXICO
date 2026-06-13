@@ -1,0 +1,53 @@
+load "credential.lx";
+load "encrypt.lx";
+load "auth.lx";
+load "storage.lx";
+load "menu.lx";
+
+# --- Authenticate user ---
+create bool access set value outcome of authenticate;
+
+if access is equal to false then
+> print "Exiting.";
+
+if access is equal to true then
+> create bool running set value true;
+> create int entry_count set value 0;
+
+> while running is equal to true do
+>> emit show_menu;
+>> create string choice set value take user input with message "Your choice: ";
+
+>> if choice is equal to "1" then
+>>> create Credential c using empty;
+>>> set c_service to take user input with message "Service name: ";
+>>> set c_username to take user input with message "Username: ";
+>>> create string raw_pwd set value take user input with message "Password: ";
+>>> create string enc_pwd set value outcome of encrypt_password with args in take raw_pwd;
+>>> emit save_entry with args in take c_service, c_username, enc_pwd;
+>>> entry_count plus 1;
+>>> print "Credential saved successfully.";
+
+>> if choice is equal to "2" then
+>>> create int slot set value take user input with message "Slot number (0-based): ";
+>>> if slot is less than entry_count then
+>>>> emit read_entry with args in take slot;
+>>> otherwise
+>>>> print "Invalid slot number.";
+
+>> if choice is equal to "3" then
+>>> create int slot set value take user input with message "Slot number (0-based): ";
+>>> if slot is less than entry_count then
+>>>> emit read_entry_decrypted with args in take slot;
+>>> otherwise
+>>>> print "Invalid slot number.";
+
+>> if choice is equal to "4" then
+>>> open "vault.txt" file make do
+>>>> clear file;
+>>> set entry_count to 0;
+>>> print "Vault cleared.";
+
+>> if choice is equal to "5" then
+>>> set running to false;
+>>> print "Goodbye. Stay secure.";

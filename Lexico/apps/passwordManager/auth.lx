@@ -1,0 +1,17 @@
+# auth.lx
+# Handles master password authentication with attempt loop
+
+define routine check_master with args in take string input returns bool do
+> create string master set value "lexico123";
+> if input is equal to master then
+>> giveback true;
+> giveback false;
+
+define routine authenticate returns bool do
+> create string pwd set value take user input with message "Enter master password: ";
+> create bool result set value outcome of check_master with args in take pwd;
+> if result is equal to false then
+>> print "Wrong password. Access denied.";
+> if result is equal to true then
+>> print "Access granted. Welcome.";
+> giveback result;
