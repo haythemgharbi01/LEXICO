@@ -291,22 +291,35 @@ Regression checklist: multi-word tokens, `INDENT`/`DEDENT` on nested blocks, rou
 ## Project structure
 
 ```text
-.
-├── CMakeLists.txt
-├── build.sh
-├── COMPILER_GUIDE.md        # full language specification and grammar
-├── src/
-│   ├── main.cpp             # CLI entry point
-│   ├── driver.cpp / .hpp    # pipeline orchestration, load expansion, AI layer
-│   ├── lexico.l             # Flex lexer
-│   ├── lexico.y             # Bison GLR grammar
-│   ├── ast.cpp / .hpp       # AST nodes
-│   ├── symtab.cpp / .hpp    # semantic analysis, symbol tables
-│   └── codegen.cpp / .hpp   # LLVM IR generation, runtime helpers, MCJIT
-├── apps/
-│   └── passwordManager/     # sample application in LEXICO
-└── tests/                   # .lx test programs
+LEXICO/
+├── Documents/
+│   ├── LEXICO_Documentation.tex
+│   ├── LEXICO_Language_Documentation.md
+│   ├── LEXICO_Report.pdf
+│   └── LEXICO_Research_Paper.pdf
+│
+├── SourceCode/
+│   ├── Applications/       # Example LEXICO programs
+│   ├── SourceFiles/        # Compiler implementation
+│   ├── research/           # Evaluation cases and research results
+│   ├── CMakeLists.txt      # CMake build configuration
+│   ├── build.py            # Build helper
+│   ├── COMPILER_GUIDE.md
+│   └── AI_COMPILER_ARCHITECTURE_REPORT.md
+│
+└── README.md
 ```
+```text
+SourceCode/SourceFiles/
+├── lexico.l                # Flex lexer specification
+├── lexico.y                # Bison GLR grammar
+├── ast.hpp / ast.cpp       # Abstract Syntax Tree
+├── symtab.hpp / symtab.cpp # Symbol table and scope management
+├── codegen.hpp / codegen.cpp # LLVM IR generation
+├── driver.hpp / driver.cpp # Compiler driver
+└── main.cpp                # Compiler entry point
+```
+
 
 ## Known limitations
 
