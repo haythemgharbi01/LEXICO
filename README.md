@@ -94,7 +94,7 @@ cmake --build build-cmake -j
 
 CMake runs Flex and Bison, finds and links LLVM, and supports Debug and Release builds (Release adds `-O2`, section GC and optional IPO/LTO).
 
-A `build.sh` helper is also provided to configure, generate the parser and lexer, compile, and run the tests.
+A `build.py` helper is also provided to configure, generate the parser and lexer, compile, and run the tests.
 
 ### Manual build on Windows (MSYS2)
 
