@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <windows.h>
 
 #include "driver.hpp"
 

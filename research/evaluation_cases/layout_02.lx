@@ -1,0 +1,4 @@
+create int total set value 2;
+if total is equal to 2 then
+> print total;
+>> print total;

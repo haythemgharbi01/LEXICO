@@ -12,10 +12,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <errno.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <memory>
 
 typedef enum {
     LX_TAG_EMPTY  = 0,
@@ -61,6 +58,14 @@ static size_t g_files_n = 0;
 static size_t g_files_cap = 0;
 
 static LLVMContextRef g_codegen_ctx = NULL;
+
+using LLVMContextOwner = std::unique_ptr<LLVMOpaqueContext, decltype(&LLVMContextDispose)>;
+using LLVMModuleOwner = std::unique_ptr<LLVMOpaqueModule, decltype(&LLVMDisposeModule)>;
+using LLVMBuilderOwner = std::unique_ptr<LLVMOpaqueBuilder, decltype(&LLVMDisposeBuilder)>;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define LLVMInt64Type() LLVMInt64TypeInContext(g_codegen_ctx)
 #define LLVMDoubleType() LLVMDoubleTypeInContext(g_codegen_ctx)
@@ -3820,9 +3825,12 @@ int codegen_emit(const Program *prog, const SymTable *tab,
     fmt_counter = 0;
     label_counter = 0;
 
-    g_codegen_ctx = LLVMContextCreate();
+    LLVMContextOwner context_owner(LLVMContextCreate(), &LLVMContextDispose);
+    g_codegen_ctx = context_owner.get();
     LLVMModuleRef mod = LLVMModuleCreateWithNameInContext("lexico", g_codegen_ctx);
+    LLVMModuleOwner module_owner(mod, &LLVMDisposeModule);
     LLVMBuilderRef bld = LLVMCreateBuilderInContext(g_codegen_ctx);
+    LLVMBuilderOwner builder_owner(bld, &LLVMDisposeBuilder);
 
     LLVMValueRef printf_fn = declare_printf(mod);
     LLVMValueRef scanf_fn = declare_scanf(mod);
@@ -3853,8 +3861,11 @@ int codegen_emit(const Program *prog, const SymTable *tab,
                mod, bld, main_fn, printf_fn, scanf_fn,
                &main_vars, &funcs, TYPE_INT, &rt, NULL, NULL, NULL, NULL);
 
-    if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(bld)))
+    if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(bld))) {
+        LLVMBuildCall2(bld, LLVMGlobalGetValueType(rt.cleanup), rt.cleanup,
+                       NULL, 0, "");
         LLVMBuildRet(bld, LLVMConstInt(LLVMInt32Type(), 0, 0));
+    }
 
     char *err = NULL;
     if (LLVMVerifyModule(mod, LLVMReturnStatusAction, &err)) {
@@ -3862,9 +3873,7 @@ int codegen_emit(const Program *prog, const SymTable *tab,
         LLVMDisposeMessage(err);
         cgvars_free(&main_vars);
         cgfuncs_free(&funcs);
-        LLVMDisposeBuilder(bld);
-        LLVMDisposeModule(mod);
-        LLVMContextDispose(g_codegen_ctx);
+        cgvars_free(&g_global_vars);
         g_codegen_ctx = NULL;
         return -1;
     }
@@ -3875,9 +3884,7 @@ int codegen_emit(const Program *prog, const SymTable *tab,
         LLVMDisposeMessage(err);
         cgvars_free(&main_vars);
         cgfuncs_free(&funcs);
-        LLVMDisposeBuilder(bld);
-        LLVMDisposeModule(mod);
-        LLVMContextDispose(g_codegen_ctx);
+        cgvars_free(&g_global_vars);
         g_codegen_ctx = NULL;
         return -1;
     }
@@ -3885,12 +3892,10 @@ int codegen_emit(const Program *prog, const SymTable *tab,
     cgvars_free(&main_vars);
     cgfuncs_free(&funcs);
     cgvars_free(&g_global_vars);
-    LLVMDisposeBuilder(bld);
-
-    if (out_mod) *out_mod = mod;
-    else {
-        LLVMDisposeModule(mod);
-        LLVMContextDispose(g_codegen_ctx);
+    if (out_mod) {
+        *out_mod = module_owner.release();
+        context_owner.release();
+    } else {
         g_codegen_ctx = NULL;
     }
     return 0;

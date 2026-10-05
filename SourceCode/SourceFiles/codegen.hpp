@@ -1,14 +1,20 @@
-/*
- * codegen.hpp – LLVM IR generation interface.
- */
 
 #ifndef LEXICO_CODEGEN_H
 #define LEXICO_CODEGEN_H
 
-#include "ast.hpp"
-#include "symtab.hpp"
+#ifdef __cplusplus
+struct Program;
+struct SymTable;
+#else
+typedef struct Program Program;
+typedef struct SymTable SymTable;
+#endif
 
-#include <llvm-c/Core.h>
+/*
+ *   Keep this public header independent of the LLVM installation.  The
+ * interface only passes the module opaquely, so the full LLVM C API header
+ * is unnecessary here and may not be available to consumers. */
+typedef struct LLVMOpaqueModule *LLVMModuleRef;
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,28 +37,6 @@ int codegen_run(LLVMModuleRef mod);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* LEXICO_CODEGEN_H */
-
-/*
- * Generate LLVM IR for the whole program.
- * On success writes the .ll text to `out_path`, stores the module
- * in *out_mod (caller must dispose), and returns 0.
- */
-int codegen_emit(const Program *prog, const SymTable *tab,
-                 const char *out_path, LLVMModuleRef *out_mod);
-
-/*
- * JIT-execute the main() inside `mod`, print any output, and
- * return the exit code of the user program.  Disposes `mod`.
- */
-int codegen_run(LLVMModuleRef mod);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* LEXICO_CODEGEN_H */
 
 /*
  * Lexico runtime helpers exposed to generated code.
@@ -123,3 +107,5 @@ double    lx_fabs(double v);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* LEXICO_CODEGEN_H */

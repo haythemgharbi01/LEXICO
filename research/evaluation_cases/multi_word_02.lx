@@ -1,0 +1,3 @@
+create int total set value 2;
+if total is not equal 3 then
+> print total;

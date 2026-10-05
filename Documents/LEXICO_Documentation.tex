@@ -1,0 +1,469 @@
+\documentclass[10.5pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shadows}
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{multicol}
+\geometry{margin=19mm,top=22mm,bottom=20mm}
+\definecolor{ink}{HTML}{172235}\definecolor{navy}{HTML}{12304A}\definecolor{teal}{HTML}{00A6A6}\definecolor{mint}{HTML}{E8F7F5}\definecolor{gold}{HTML}{F2B84B}\definecolor{coral}{HTML}{E76F51}\definecolor{paper}{HTML}{F6F9FC}\definecolor{codebg}{HTML}{111C2E}
+\setmainfont{Arial}\setsansfont{Arial}\setmonofont{Courier New}
+\hypersetup{colorlinks=true,linkcolor=teal,urlcolor=teal,pdftitle={LEXICO Language Documentation},pdfauthor={LEXICO Project}}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\sffamily\small\color{navy}LEXICO}\fancyhead[R]{\sffamily\small\color{teal}Language Documentation}\fancyfoot[C]{\sffamily\small\thepage}
+\titleformat{\section}{\Large\sffamily\bfseries\color{navy}}{\thesection}{.6em}{}[\color{teal}\titlerule]
+\titleformat{\subsection}{\large\sffamily\bfseries\color{navy}}{\thesubsection}{.5em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries\color{teal}}{\thesubsubsection}{.5em}{}
+\lstdefinelanguage{Lexico}{morekeywords={create,set,value,values,print,convert,append,sort,ascendantly,descendantly,count,check,position,extract,if,then,otherwise,when,while,do,for,from,to,step,repeat,until,attempt,up,times,on,failure,define,routine,returns,giveback,emit,outcome,of,with,args,in,take,user,input,message,class,include,inherits,profile,using,override,open,make,file,write,read,line,lines,clear,close,title,into,load,array,table,mesh,matrix,rows,cols,row,column,size,length,sized,at,and,or,not,plus,minus,times,divided,by,mod,true,false,int,float,char,string,bool},sensitive=true,morecomment=[l]{\#},morestring=[b]",morestring=[b]'}
+\lstset{language=Lexico,basicstyle=\scriptsize\ttfamily\color{white},keywordstyle=\color{gold}\bfseries,commentstyle=\color{gray},stringstyle=\color{mint},backgroundcolor=\color{codebg},frame=single,rulecolor=\color{teal},breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,aboveskip=5pt,belowskip=5pt}
+\newtcolorbox{tipbox}[1]{colback=mint,colframe=teal!70!navy,title={\sffamily\bfseries #1},fonttitle=\small,boxrule=.7pt,arc=2mm,left=3mm,right=3mm,top=2mm,bottom=2mm}
+\newtcolorbox{warnbox}[1]{colback=orange!7,colframe=gold,title={\sffamily\bfseries #1},boxrule=.7pt,arc=2mm,left=3mm,right=3mm,top=2mm,bottom=2mm}
+\newcommand{\LX}{\textsf{\textbf{LEXICO}}}
+\begin{document}
+\begin{titlepage}\pagecolor{paper}
+\begin{tikzpicture}[remember picture,overlay]
+\fill[navy] (current page.north west) rectangle ([yshift=-8.6cm]current page.north east);
+\fill[teal] ([yshift=-8.6cm]current page.north west) rectangle ([yshift=-8.84cm]current page.north east);
+\node[anchor=north west,text=white,font=\sffamily\bfseries\fontsize{40}{44}\selectfont] at ([xshift=20mm,yshift=-25mm]current page.north west) {LEXICO};
+\node[anchor=north west,text=mint,font=\sffamily\fontsize{18}{23}\selectfont] at ([xshift=21mm,yshift=-53mm]current page.north west) {Official Language Documentation};
+\node[anchor=north west,text=white,text width=15cm,font=\sffamily\large] at ([xshift=21mm,yshift=-70mm]current page.north west) {A practical guide to writing readable, typed programs with word-based syntax};
+\end{tikzpicture}
+\vspace*{10cm}
+\begin{tipbox}{Learn the language, not the machinery}
+LEXICO is a controlled, compiled programming language. This guide teaches the source language: declarations, expressions, conditions, loops, routines, collections, files, modules, and classes. The compiler's internal architecture is intentionally kept out of the way.
+\end{tipbox}
+\vfill\sffamily\color{navy}\large Version 1.0 \textbullet\ 2026\\[2mm]\color{ink}\normalsize Readable words. Explicit types. Deterministic programs.
+\end{titlepage}\nopagecolor
+\tableofcontents\newpage
+\section{Welcome to LEXICO}
+LEXICO is a statically typed, word-based language. Its expressions use words such as \texttt{plus}, \texttt{divided by}, and \texttt{is greater than}, while its blocks use visible \texttt{>} markers. The syntax is intentionally controlled: programs should read naturally, but every accepted form is precise.
+\begin{lstlisting}
+create int price set value 20;
+create int quantity set value 3;
+create int total set value price times quantity;
+print "Total:", total;
+\end{lstlisting}
+The example declares three integers, calculates a product, and prints two expressions. A comma in a print statement separates output expressions; LEXICO prints a space between them and a newline at the end.
+\begin{tipbox}{The central idea}
+Write code that describes intent directly, while retaining explicit types, explicit control flow, and ordinary compiler checks.
+\end{tipbox}
+\section{Getting started}
+\subsection{Requirements and build}
+The repository requires a C++17 compiler, CMake 3.20+, Flex, Bison, and LLVM with the C API. `curl` is needed only for optional AI-assisted recovery. From the repository root:
+\begin{lstlisting}[language={}]
+cmake -S . -B build-cmake
+cmake --build build-cmake --target lexico
+\end{lstlisting}
+The portable helper performs the same CMake workflow:
+\begin{lstlisting}[language={}]
+python build.py
+\end{lstlisting}
+\subsection{Run a program}
+LEXICO source files use the `.lx` extension:
+\begin{lstlisting}[language={}]
+lexico hello.lx
+lexico --autofix hello.lx
+lexico --dump-expanded hello.lx
+\end{lstlisting}
+`--autofix` enables deterministic local repairs and optional AI parse-error recovery. `--dump-expanded` displays the source after module loading has been expanded.
+\subsection{Your first program}
+Create `hello.lx`:
+\begin{lstlisting}
+create string name set value "LEXICO";
+print "Hello,", name;
+\end{lstlisting}
+`create string name` declares a string. `set value` initializes it. The `print` statement evaluates both expressions from left to right.
+\section{Language basics}
+\subsection{Statements and comments}
+Ordinary statements end in `;`. A `\#` begins a comment:
+\begin{lstlisting}
+create int answer set value 42; # a comment
+print answer;
+\end{lstlisting}
+Keywords are lowercase and case-sensitive. Use `create`, not `Create`, and `string`, not `String`.
+\subsection{Blocks and indentation markers}
+A block header is followed by lines beginning with one or more `>` characters:
+\begin{lstlisting}
+if answer is greater than 0 then
+> print "positive";
+> if answer is equal to 42 then
+>> print "the answer";
+print "outside";
+\end{lstlisting}
+One marker enters a block. Two markers enter a nested block. A line without a marker returns to the outer level. Statements inside the block still require semicolons.
+\subsection{Names}
+Use descriptive identifiers such as `item_count`, `average_price`, and `is_ready`. Avoid reserved keywords as names. The language uses lowercase keywords; identifiers are normally written in lowercase or snake case for readability.
+\section{Variables and assignment}
+\subsection{Declarations}
+\begin{lstlisting}
+create int age set value 21;
+create float temperature set value 21.5;
+create string city set value "Monastir";
+create bool online set value true;
+\end{lstlisting}
+Several variables of the same type can be initialized together:
+\begin{lstlisting}
+create int x, y, z set value 10, 20, 30;
+\end{lstlisting}
+The number of names and values must match.
+\subsection{Defaults}
+A declaration without an initializer uses a typed default:
+\begin{lstlisting}
+create int count;
+create float ratio;
+create char initial;
+create string message;
+create bool ready;
+\end{lstlisting}
+The defaults are `0`, `0.0`, the null character, the empty string, and `false`.
+\subsection{Assignment}
+\begin{lstlisting}
+create int score set value 10;
+set score to score plus 5;
+print score;
+\end{lstlisting}
+The target must already be declared, and the expression must be compatible with its type.
+\subsection{Compound assignment}
+A bare identifier followed by an arithmetic operator updates that identifier:
+\begin{lstlisting}
+create int counter set value 0;
+counter plus 1;
+counter times 2;
+\end{lstlisting}
+These mean `set counter to counter plus 1;` and `set counter to counter times 2;`. The right side remains a complete expression.
+\section{Data types and literals}
+\begin{tabularx}{\textwidth}{l l X}\toprule Type & Examples & Use\\\midrule
+`int` & `0`, `42`, `-7` & Whole-number calculations\\
+`float` & `3.14` & Fractional values\\
+`char` & `'A'` & One character\\
+`string` & `"hello"` & Text\\
+`bool` & `true`, `false` & Logical state\\\bottomrule\end{tabularx}
+\subsection{Integers, floats, characters, and booleans}
+\begin{lstlisting}
+create int width set value 12;
+create float price set value 12.50;
+create char grade set value 'A';
+create bool enabled set value true;
+print width, price, grade, enabled;
+\end{lstlisting}
+Booleans print as `true` and `false` and are not arithmetic operands. Float values are double-precision values in the runtime.
+\section{Operators and expressions}
+\subsection{Arithmetic}
+\begin{tabularx}{\textwidth}{l X}\toprule Word & Meaning\\\midrule
+`plus` & addition; string concatenation\\
+`minus` & subtraction; first substring removal\\
+`times` & multiplication\\
+`divided by` & division\\
+`mod` & integer remainder\\\bottomrule\end{tabularx}
+\begin{lstlisting}
+create int a set value 17;
+create int b set value 5;
+print a plus b;
+print a minus b;
+print a times b;
+print a divided by b;
+print a mod b;
+\end{lstlisting}
+Precedence is parentheses, then `times`/`divided by`/`mod`, then `plus`/`minus`:
+\begin{lstlisting}
+create int result set value 2 plus 3 times 4;
+create int grouped set value (2 plus 3) times 4;
+print result, grouped;
+\end{lstlisting}
+The results are `14` and `20`.
+\subsection{Comparisons and logic}
+Conditions use `is equal to`, `is not equal to`, `is greater than`, `is less than`, `is greater or equal to`, and `is less or equal to`. Combine conditions with `not`, `and`, and `or`.
+\begin{lstlisting}
+if (age is greater or equal to 18) and not (blocked is equal to true) then
+> print "allowed";
+\end{lstlisting}
+\section{Strings and text}
+\subsection{Concatenation and removal}
+\begin{lstlisting}
+create string first set value "Lex";
+create string second set value "ico";
+print first plus second;
+print "banana" minus "na";
+\end{lstlisting}
+`plus` concatenates. `minus` removes the first occurrence of the right-hand substring; if it is absent, the original string remains.
+\subsection{Index and length}
+\begin{lstlisting}
+create string word set value "LEXICO";
+print word at 1;
+print length of word;
+print length of "hello";
+\end{lstlisting}
+Indexes are zero-based. An invalid index is a runtime error.
+\subsection{Extraction}
+\begin{lstlisting}
+create string text set value "one-two-three";
+print extract "two" from text;
+print extract from 0 to 3 in text;
+\end{lstlisting}
+Extraction expressions operate on string sources and use expression values for their search or range arguments.
+\section{Input and output}
+\subsection{Printing}
+\begin{lstlisting}
+create int count set value 3;
+print "count:", count, count plus 1;
+\end{lstlisting}
+Arguments are evaluated left-to-right, separated by spaces, followed by a newline.
+\subsection{User input}
+Input is part of a declaration or assignment:
+\begin{lstlisting}
+create int age set value take user input with message "Age: ";
+set age to take user input with message "Enter age again: ";
+\end{lstlisting}
+Message parts are comma-separated expressions:
+\begin{lstlisting}
+create int limit set value 10;
+create int value set value take user input with message "Enter a value below ", limit, ": ";
+\end{lstlisting}
+Boolean input is integer-like: zero becomes `false`; non-zero becomes `true`.
+\section{Conditions}
+\subsection{If and otherwise}
+\begin{lstlisting}
+create int score set value 82;
+if score is greater or equal to 90 then
+> print "A";
+otherwise when score is greater or equal to 75 then
+> print "B";
+otherwise when score is greater or equal to 50 then
+> print "C";
+otherwise
+> print "F";
+\end{lstlisting}
+Branches are tested in order; the first matching branch runs. Conditions may be nested with deeper `>` markers.
+\section{Loops}
+\subsection{While}
+\begin{lstlisting}
+create int i set value 0;
+while i is less than 3 do
+> print i;
+> set i to i plus 1;
+\end{lstlisting}
+The condition is checked before every iteration.
+\subsection{For}
+\begin{lstlisting}
+for i from 1 to 5 do
+> print i;
+
+for i from 0 to 10 step plus 2 do
+> print i;
+
+for i from 5 to 1 step minus 1 do
+> print i;
+\end{lstlisting}
+Bounds are inclusive. The iterator is implicit and loop-local. The step must not be zero.
+\subsection{Repeat and attempt}
+\begin{lstlisting}
+create int attempts set value 0;
+repeat
+> set attempts to attempts plus 1;
+until attempts is greater or equal to 3 then
+\end{lstlisting}
+`repeat` runs its body before checking the condition. A bounded retry loop is written:
+\begin{lstlisting}
+attempt up to 3 while value is less than 10 do
+> set value to value plus 3;
+on failure
+> print "limit reached";
+\end{lstlisting}
+The failure block is optional and runs when the limit is reached while the condition remains true.
+\section{Routines}
+\subsection{Define and return}
+\begin{lstlisting}
+define routine add with args in take int left, int right returns int do
+> giveback left plus right;
+\end{lstlisting}
+Global routines require an explicit return type. Use `giveback` to return an expression.
+\subsection{Call routines}
+\begin{lstlisting}
+create int total set value outcome of add with args in take 4, 6;
+print total;
+emit add with args in take 1, 2;
+\end{lstlisting}
+`outcome of` is an expression. `emit` calls a routine and discards the result. No-argument calls omit the argument clause:
+\begin{lstlisting}
+define routine answer returns int do
+> giveback 42;
+print outcome of answer;
+\end{lstlisting}
+The compiler checks routine existence, argument count, types, and return compatibility.
+\section{Meshes and collections}
+\subsection{Typed and dynamic meshes}
+\begin{lstlisting}
+create int mesh nums sized 5;
+create int mesh values set values 12, 32, 12, 54, 25;
+create mesh mixed set values 12, "hello", 'x', 3.14, true;
+\end{lstlisting}
+Typed meshes enforce an element type. Dynamic meshes accept mixed scalar values with runtime type tags.
+\subsection{Access, append, and sort}
+\begin{lstlisting}
+print values at 1;
+set values value at 1 to 99;
+append 40 to values;
+append 5 to values at 0;
+sort values ascendantly;
+\end{lstlisting}
+Indexes are zero-based. Typed collections support sorting for supported scalar types.
+\subsection{Count, check, and position}
+\begin{lstlisting}
+print count 12 in values;
+print check 99 in values;
+print position of 99 in values;
+\end{lstlisting}
+These return a count, a boolean, and the first matching index or `-1`.
+\subsection{Collection loops}
+\begin{lstlisting}
+for i in values from 0 to size of values minus 1 do
+> print values at i;
+\end{lstlisting}
+\section{Matrices}
+\begin{lstlisting}
+create int matrix mesh grid set values 1, 2, 3 / 4, 5, 6;
+print grid at 0,1;
+set grid at 0,1 to 99;
+print size of grid;
+print row length of grid;
+print column length of grid;
+\end{lstlisting}
+Matrix initializer rows must have equal lengths. Matrix coordinates are zero-based. Matrix loops use two implicit iterators:
+\begin{lstlisting}
+for i j in grid i from 0 to 1 and j from 0 to 2 do
+> set i plus j at i,j;
+\end{lstlisting}
+\section{File operations}
+File statements are valid only inside an active file block:
+\begin{lstlisting}
+create string line set value "";
+create table rows with size 0;
+open "notes.txt" file make do
+> clear file;
+> write "alpha" in file;
+> write "beta" in file;
+> read line 1 in file into line;
+> print "Read:", line;
+> read file into rows;
+> print rows;
+\end{lstlisting}
+Use `file do` for an existing file and `file make do` to create a missing file. Single-line reads target a string; multi-line reads target a table. Other forms include `clear line`, range clearing, line replacement, `set file title to`, and `close file`.
+\section{Modules}
+Load another source file with:
+\begin{lstlisting}
+load "lib/crypto.lx";
+\end{lstlisting}
+Relative paths are resolved from the file containing the load statement. Duplicate loads are ignored and circular loads are rejected.
+\section{Classes and profiles}
+\begin{lstlisting}
+define class Shape include
+> create string label;
+> profile base do
+>> set label to "shape";
+> routine show do
+>> print label;
+
+define class Circle inherits Shape include
+> override create string label;
+> create int radius;
+> profile default do
+>> set label to "circle";
+>> set radius to 2;
+> override routine show do
+>> print label, radius;
+
+create Circle c using default;
+emit c_show;
+\end{lstlisting}
+Classes support typed properties, profiles, inheritance, property overrides, routines, and routine overrides. A profile contains property assignments or input actions. Class routines may omit `returns`; routines with values may declare a return type.
+\section{Conversions and built-ins}
+\subsection{Conversions}
+\begin{lstlisting}
+create int code set value 65;
+convert code to char;
+convert code to string;
+\end{lstlisting}
+The expression form is also available:
+\begin{lstlisting}
+create string text set value "42";
+create int number set value convert text to int;
+\end{lstlisting}
+Invalid conversions produce runtime errors. Supported built-in expressions include:
+\begin{tabularx}{\textwidth}{l X}\toprule Expression & Result\\\midrule
+`size of name` & Collection size\\
+`row length of name` & Matrix row count\\
+`column length of name` & Matrix column count\\
+`length of expression` & String length\\
+`count value in name` & Match count\\
+`check value in name` & Boolean membership\\
+`position of value in name` & First matching index or `-1`\\
+`name at index` & Collection/string element\\
+`name at row,col` & Matrix cell\\\bottomrule\end{tabularx}
+\section{Complete programs}
+\subsection{Factorial}
+\begin{lstlisting}
+create int n set value 5;
+create int result set value 1;
+create int i set value 1;
+while i is less or equal to n do
+> set result to result times i;
+> set i to i plus 1;
+print "factorial:", result;
+\end{lstlisting}
+This program demonstrates declarations, a loop, arithmetic precedence, and output.
+\subsection{Mesh search}
+\begin{lstlisting}
+create int mesh scores set values 12, 45, 78, 45, 91;
+create int target set value 45;
+print "count:", count target in scores;
+print "present:", check target in scores;
+print "first index:", position of target in scores;
+for i in scores from 0 to size of scores minus 1 do
+> if scores at i is greater than 50 then
+>> print "high score", i, scores at i;
+\end{lstlisting}
+\section{Errors and limitations}
+LEXICO reports lexical, parse, semantic, and runtime errors. It has no general `try/catch` construct. `attempt ... on failure` is a bounded retry loop, not exception handling. File operations require an active file block; collection indexes are zero-based; typed collections enforce compatibility; and `step 0` is invalid.
+\begin{lstlisting}
+# Incorrect
+Create int value set value 1
+if value > 0 then
+> print value;
+
+# Correct
+create int value set value 1;
+if value is greater than 0 then
+> print value;
+\end{lstlisting}
+\section{Language reference and cheat sheet}
+\subsection{Common keywords}
+`create`, `set`, `value`, `values`, `print`, `convert`, `append`, `sort`, `count`, `check`, `position`, `extract`, `if`, `then`, `otherwise`, `when`, `while`, `do`, `for`, `from`, `to`, `step`, `repeat`, `until`, `attempt`, `up to`, `times while`, `on failure`, `define`, `routine`, `returns`, `giveback`, `emit`, `outcome`, `class`, `include`, `inherits`, `profile`, `using`, `override`, `open`, `make`, `file`, `write`, `read`, `line`, `lines`, `clear`, `close`, `title`, `into`, `load`, `array`, `table`, `mesh`, `matrix`, `size`, `length`, `at`, `int`, `float`, `char`, `string`, `bool`, `true`, `false`.
+\subsection{Quick syntax}
+\begin{lstlisting}
+create int x set value 10;
+set x to x plus 1;
+print x;
+if x is greater than 10 then
+> print "large";
+while x is less than 20 do
+> set x to x plus 1;
+define routine double with args in take int n returns int do
+> giveback n times 2;
+create int mesh nums set values 3, 1, 2;
+print check 2 in nums;
+open "notes.txt" file make do
+> write "hello" in file;
+load "library.lx";
+\end{lstlisting}
+\begin{tipbox}{Programming style}
+Keep block markers aligned, use descriptive names, add parentheses when grouping matters, and prefer one clear operation per statement. LEXICO is readable when the source reflects the program's intent.
+\end{tipbox}
+\end{document}

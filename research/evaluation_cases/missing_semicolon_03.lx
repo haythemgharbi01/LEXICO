@@ -1,0 +1,2 @@
+create int total set value 2;
+print total
