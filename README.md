@@ -314,8 +314,7 @@ Regression checklist: multi-word tokens, `INDENT`/`DEDENT` on nested blocks, rou
 .
 ├── README.md
 ├── Documents/
-│   ├── LEXICO_Language_Documentation.md   # programmer's guide and language reference
-│   ├── LEXICO_Documentation.tex           # LaTeX documentation source
+│   ├── LEXICO_Documentation.pdf           # programmer's guide and language reference
 │   ├── LEXICO_Report.pdf                  # end-of-studies project report
 │   └── LEXICO_Research_Paper.pdf          # research paper: syntax, deterministic compilation, AI-assisted recovery
 └── SourceCode/
@@ -349,8 +348,4 @@ Possible future work: an AST-based deterministic fixer, a dry-run/diff mode befo
 ## Author
 
 **Haythem Gharbi**, Faculty of Sciences of Monastir
-GitHub: [haythemgharbi01](https://github.com/haythemgharbi01) · Supervised by Prof. Jallouli Malika
-
-## License
-
-Add a license of your choice (for example MIT) in a `LICENSE` file and name it here.
+GitHub: [haythemgharbi01](https://github.com/haythemgharbi01)
