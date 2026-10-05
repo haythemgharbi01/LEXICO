@@ -1,8 +1,6 @@
 # LEXICO
 
-**A human-oriented, compiled programming language with an LLVM backend and optional AI-assisted error recovery.**
-
-LEXICO lets you write programs in a controlled, word-based syntax (`set total to price times quantity;`) instead of symbol-heavy code. A classical, deterministic compiler written in C++17 turns that syntax into LLVM IR and runs it in-process with MCJIT. An optional AI layer can explain errors and propose fixes, but it never takes part in compilation itself.
+**LEXICO lets you write programs in a controlled, word-based syntax (`set total to price times quantity;`) instead of symbol-heavy code. A classical, deterministic compiler written in C++17 turns that syntax into LLVM IR and runs it in-process with MCJIT. An optional AI layer can explain errors and propose fixes, but it never takes part in compilation itself.**
 
 ---
 
